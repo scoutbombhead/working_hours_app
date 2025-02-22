@@ -21,31 +21,26 @@
       align-items: flex-start;
       gap: 10px;
     }
-    /* Delete column styling */
-    #delete-column {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      margin-top: 40px; /* Adjust this to align buttons with table rows */
+
+    #delete-table {
+      border-collapse: collapse;
     }
-    #delete-column button {
-      padding: 5px;
-      width: 30px;
-      background-color: #f44336;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-top: 4px;
+    #delete-table td {
+    //border: 1px solid #ddd;
+      padding: 10px;
+    //margin: 0;
+      text-align: right;
+      vertical-align: middle;
+      width: 40px; /* Fixed width for the delete column */
     }
+
     /* Table styling */
-    table {
+    #work-hours-table table {
       width: 80%;
       max-width: 600px;
       border-collapse: collapse;
     }
-    th, td {
+    #work-hours-table th, #work-hours-table td {
       border: 1px solid #ddd;
       padding: 10px;
       text-align: center;
@@ -88,11 +83,24 @@
   </style>
 </head>
 <body>
-<h1>Editable Work Hours Log</h1>
+<h1>Work Hours Log</h1>
 
 <div id="log-container">
-  <!-- Delete column: Buttons will be generated here -->
-  <div id="delete-column"></div>
+
+  <!-- Left "invisible" table for delete buttons -->
+  <table id="delete-table">
+    <tbody>
+    <tr>
+      <td><button class="delete-btn">-</button></td>
+    </tr>
+    <tr>
+      <td><button class="delete-btn">-</button></td>
+    </tr>
+    <tr>
+      <td><button class="delete-btn">-</button></td>
+    </tr>
+    </tbody>
+  </table>
 
   <!-- Data table -->
   <table id="work-hours-table">
@@ -141,22 +149,59 @@
 
 <script>
   // Update the delete column to match the number of rows
-  function updateDeleteColumn() {
-    const tbody = document.querySelector('#work-hours-table tbody');
-    const rows = tbody.querySelectorAll('tr');
-    const deleteColumn = document.getElementById('delete-column');
+  function updateDeleteTable() {
+    const tbody = document.querySelector('#work-hours-table tbody'); // Main table body
+    const deleteTbody = document.querySelector('#delete-table tbody'); // Delete table body
 
-    // Clear the delete column
-    deleteColumn.innerHTML = '';
+    // Get all rows except the first (header row is in <thead>, so tbody rows are safe)
+    //const rows = tbody.querySelectorAll('tr');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    // Clear the delete table
+    deleteTbody.innerHTML = '';
 
-    // Create a delete button for each row
-    rows.forEach((row, index) => {
-      const btn = document.createElement('button');
-      btn.className = 'delete';
-      btn.innerText = '-';
-      btn.onclick = function() { removeRow(index); };
-      deleteColumn.appendChild(btn);
-    });
+    for (let i = 0; i <= rows.length; i++) {
+      const deleteRow = document.createElement('tr');
+      const deleteCell = document.createElement('td');
+
+      if (i === 0){
+      deleteCell.innerHTML = '&nbsp;';
+      }
+      else{
+        const btn = document.createElement('button'); // Create delete button
+        btn.className = 'delete';
+        btn.innerText = '-';
+        btn.onclick = function (index) {
+          removeRow(index);
+        };
+        deleteCell.appendChild(btn); // Add button to the cell
+      }
+      deleteRow.appendChild(deleteCell);
+      deleteTbody.appendChild(deleteRow);
+
+    }
+
+
+    // Create a delete button row for each work hours row
+    /*rows.forEach((row) => {
+
+      const deleteRow = document.createElement('tr'); // Create a new row
+      const deleteCell = document.createElement('td'); // Create a cell for the button
+
+      if (row.rowIndex === 1) {
+        deleteCell.innerHTML = '&nbsp;';
+      }
+      else {
+        const btn = document.createElement('button'); // Create delete button
+        btn.className = 'delete';
+        btn.innerText = '-';
+        btn.onclick = function () {
+          removeRow(index);
+        };
+        deleteCell.appendChild(btn); // Add button to the cell
+      }
+      deleteRow.appendChild(deleteCell); // Add cell to the row
+      deleteTbody.appendChild(deleteRow); // Add row to the delete table
+    });*/
   }
 
   // Remove a row and update the delete column
@@ -165,7 +210,7 @@
     const rows = tbody.querySelectorAll('tr');
     if (rowIndex < rows.length) {
       rows[rowIndex].remove();
-      updateDeleteColumn();
+      updateDeleteTable();
       updateSummaryTable();
     }
   }
@@ -218,7 +263,7 @@
         <td contenteditable="true">0</td>
       `;
     tbody.appendChild(newRow);
-    updateDeleteColumn();
+    updateDeleteTable();
     updateSummaryTable();
   });
 
@@ -243,7 +288,7 @@
   });
 
   // Initialize the delete column and summary table on page load.
-  updateDeleteColumn();
+  updateDeleteTable();
   updateSummaryTable();
 </script>
 </body>
