@@ -154,28 +154,19 @@
       if (firstCell) {
         // Clear the first cell's content (if any)
         firstCell.innerHTML = '';
+        // Add a delete button to all other rows
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'delete';
+        deleteButton.innerText = '-';
 
-        if (i === 0) {
-          // Add an invisible button to the first row (header row)
-          const invisibleButton = document.createElement('button');
-          invisibleButton.className = 'button';
-          invisibleButton.innerHTML = '-';
-          firstCell.appendChild(invisibleButton);
-        } else {
-          // Add a delete button to all other rows
-          const deleteButton = document.createElement('button');
-          deleteButton.className = 'delete';
-          deleteButton.innerText = '-';
+        // Attach click handler
+        deleteButton.onclick = (function(index) {
+          return function() {
+            removeRow(index);
+          };
+        })(i);
 
-          // Attach click handler
-          deleteButton.onclick = (function(index) {
-            return function() {
-              removeRow(index);
-            };
-          })(i);
-
-          firstCell.appendChild(deleteButton);
-        }
+        firstCell.appendChild(deleteButton);
       }
     }
   }
