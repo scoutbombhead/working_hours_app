@@ -141,8 +141,7 @@
 
 <script>
   // Update the delete column to match the number of rows
-
-  function updateDeleteTable() {
+    function updateDeleteButton() {
     const tbody = document.querySelector('#work-hours-table tbody');
     const rows = Array.from(tbody.querySelectorAll('tr'));
 
@@ -150,7 +149,7 @@
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
       const firstCell = row.querySelector('td'); // Get the first cell of the row
-
+      
       if (firstCell) {
         // Clear the first cell's content (if any)
         firstCell.innerHTML = '';
@@ -172,14 +171,14 @@
   }
 
   // Call the function to populate the delete buttons
-  updateDeleteTable();
+    updateDeleteButton();
   // Remove a row and update the delete column
   function removeRow(rowIndex) {
     const tbody = document.querySelector('#work-hours-table tbody');
     const rows = tbody.querySelectorAll('tr');
     if (rowIndex < rows.length) {
       rows[rowIndex].remove();
-      updateDeleteTable();
+            updateDeleteButton();
       updateSummaryTable();
     }
   }
@@ -235,7 +234,7 @@
         <td contenteditable="true"></td>
       `;
     tbody.appendChild(newRow);
-    updateDeleteTable();
+        updateDeleteButton();
     updateSummaryTable();
   });
 
@@ -260,7 +259,7 @@
   });
 
   // Initialize the delete column and summary table on page load.
-  updateDeleteTable();
+    updateDeleteButton();
   updateSummaryTable();
 </script>
 </body>
