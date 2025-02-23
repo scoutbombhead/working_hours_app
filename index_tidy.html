@@ -22,28 +22,32 @@
       gap: 10px;
     }
 
-    #delete-table {
-      border-collapse: collapse;
-    }
-    #delete-table td {
-    //border: 1px solid #ddd;
-      padding: 10px;
-    //margin: 0;
-      text-align: right;
-      vertical-align: middle;
-      width: 40px; /* Fixed width for the delete column */
+    #work-hours-table th:first-child,
+    #work-hours-table td:first-child {
+      border: none; /* Remove all borders */
+      background-color: #f9f9f9;
     }
 
+    #work-hours-table {
+      border-collapse: collapse;
+    }
+
+    #work-hours-table td {
+      border: 1px solid #ddd;
+      text-align: center;
+      vertical-align: middle;
+    }
     /* Table styling */
     #work-hours-table table {
       width: 80%;
       max-width: 600px;
-      border-collapse: collapse;
     }
     #work-hours-table th, #work-hours-table td {
       border: 1px solid #ddd;
-      padding: 10px;
+      padding: 9.5px;
       text-align: center;
+      height: 20px;
+      min-height: 20px;
     }
     th {
       background-color: #f1f1f1;
@@ -87,25 +91,11 @@
 
 <div id="log-container">
 
-  <!-- Left "invisible" table for delete buttons -->
-  <table id="delete-table">
-    <tbody>
-    <tr>
-      <td><button class="delete-btn">-</button></td>
-    </tr>
-    <tr>
-      <td><button class="delete-btn">-</button></td>
-    </tr>
-    <tr>
-      <td><button class="delete-btn">-</button></td>
-    </tr>
-    </tbody>
-  </table>
-
   <!-- Data table -->
   <table id="work-hours-table">
     <thead>
     <tr>
+      <th></th>
       <th>Project</th>
       <th>Task</th>
       <th>Hours</th>
@@ -113,11 +103,13 @@
     </thead>
     <tbody>
     <tr>
+      <td contenteditable="false"></td>
       <td contenteditable="true">Project A</td>
       <td contenteditable="true">Bug Fix</td>
       <td contenteditable="true">3</td>
     </tr>
     <tr>
+      <td contenteditable="false"></td>
       <td contenteditable="true">Project B</td>
       <td contenteditable="true">Feature Development</td>
       <td contenteditable="true">5</td>
@@ -149,61 +141,47 @@
 
 <script>
   // Update the delete column to match the number of rows
+
   function updateDeleteTable() {
-    const tbody = document.querySelector('#work-hours-table tbody'); // Main table body
-    const deleteTbody = document.querySelector('#delete-table tbody'); // Delete table body
-
-    // Get all rows except the first (header row is in <thead>, so tbody rows are safe)
-    //const rows = tbody.querySelectorAll('tr');
+    const tbody = document.querySelector('#work-hours-table tbody');
     const rows = Array.from(tbody.querySelectorAll('tr'));
-    // Clear the delete table
-    deleteTbody.innerHTML = '';
 
-    for (let i = 0; i <= rows.length; i++) {
-      const deleteRow = document.createElement('tr');
-      const deleteCell = document.createElement('td');
+    // Loop through all rows
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const firstCell = row.querySelector('td'); // Get the first cell of the row
 
-      if (i === 0){
-      deleteCell.innerHTML = '&nbsp;';
+      if (firstCell) {
+        // Clear the first cell's content (if any)
+        firstCell.innerHTML = '';
+
+        if (i === 0) {
+          // Add an invisible button to the first row (header row)
+          const invisibleButton = document.createElement('button');
+          invisibleButton.className = 'button';
+          invisibleButton.innerHTML = '-';
+          firstCell.appendChild(invisibleButton);
+        } else {
+          // Add a delete button to all other rows
+          const deleteButton = document.createElement('button');
+          deleteButton.className = 'delete';
+          deleteButton.innerText = '-';
+
+          // Attach click handler
+          deleteButton.onclick = (function(index) {
+            return function() {
+              removeRow(index);
+            };
+          })(i);
+
+          firstCell.appendChild(deleteButton);
+        }
       }
-      else{
-        const btn = document.createElement('button'); // Create delete button
-        btn.className = 'delete';
-        btn.innerText = '-';
-        btn.onclick = function (index) {
-          removeRow(index);
-        };
-        deleteCell.appendChild(btn); // Add button to the cell
-      }
-      deleteRow.appendChild(deleteCell);
-      deleteTbody.appendChild(deleteRow);
-
     }
-
-
-    // Create a delete button row for each work hours row
-    /*rows.forEach((row) => {
-
-      const deleteRow = document.createElement('tr'); // Create a new row
-      const deleteCell = document.createElement('td'); // Create a cell for the button
-
-      if (row.rowIndex === 1) {
-        deleteCell.innerHTML = '&nbsp;';
-      }
-      else {
-        const btn = document.createElement('button'); // Create delete button
-        btn.className = 'delete';
-        btn.innerText = '-';
-        btn.onclick = function () {
-          removeRow(index);
-        };
-        deleteCell.appendChild(btn); // Add button to the cell
-      }
-      deleteRow.appendChild(deleteCell); // Add cell to the row
-      deleteTbody.appendChild(deleteRow); // Add row to the delete table
-    });*/
   }
 
+  // Call the function to populate the delete buttons
+  updateDeleteTable();
   // Remove a row and update the delete column
   function removeRow(rowIndex) {
     const tbody = document.querySelector('#work-hours-table tbody');
@@ -224,8 +202,9 @@
     rows.forEach(row => {
       const cells = row.querySelectorAll('td');
       // Extract project name and hours, trimming any extra spaces.
-      const project = cells[0].innerText.trim();
-      const hoursText = cells[2].innerText.trim();
+      if( cells[1].innerText !==''){
+      const project = cells[1].innerText.trim();
+      const hoursText = cells[3].innerText.trim();
       // Parse hours to a number; if invalid, treat as 0.
       const hours = parseFloat(hoursText) || 0;
 
@@ -233,6 +212,7 @@
         summary[project] += hours;
       } else {
         summary[project] = hours;
+      }
       }
     });
 
@@ -258,9 +238,10 @@
     const tbody = document.querySelector('#work-hours-table tbody');
     const newRow = document.createElement('tr');
     newRow.innerHTML = `
-        <td contenteditable="true">New Project</td>
-        <td contenteditable="true">New Task</td>
-        <td contenteditable="true">0</td>
+        <td contenteditable="false"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
       `;
     tbody.appendChild(newRow);
     updateDeleteTable();
