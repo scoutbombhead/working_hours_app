@@ -1,81 +1,55 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List
-from fastapi.middleware.cors import CORSMiddleware
 import json
 import os
+import uvicorn
 
 app = FastAPI()
 
-# CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # This allows all origins. You can specify localhost if you want.
-    allow_credentials=True,
-    allow_methods=["*"],  # This allows all methods (GET, POST, DELETE, etc.)
-    allow_headers=["*"],  # This allows all headers
-)
+DATA_FILE = "entries.json"
 
-# Path to the JSON file where todos will be saved
-ENTRIES_FILE_PATH = 'todos.json'
+# Ensure the data file exists
+if not os.path.exists(DATA_FILE):
+    with open(DATA_FILE, "w") as file:
+        json.dump([], file)
 
-def read_entries_from_file():
-    print("Reading entries from file")
-    if os.path.exists(ENTRIES_FILE_PATH):
-        print("File found")
-        try:
-            with open(ENTRIES_FILE_PATH, 'r') as file:
-                entries = json.load(file)
-                print("Entries loaded")
-                return entries
-        except json.JSONDecodeError as error:
-            print(f"Error reading JSON: {error}")
-            return [] # Return an empty list if there was an error
-    else:
-            print(f"File not found: {ENTRIES_FILE_PATH}")
-    return [] # Return an empty list if the file doesn't exist
+# Function to read data from JSON file
+def read_data():
+    with open(DATA_FILE, "r") as file:
+        return json.load(file)
 
-def save_entries_to_file(entires):
-    print("Saving entries to file")
-    with open(ENTRIES_FILE_PATH, 'w') as file:
-        json.dump(entires, file)
+# Function to write data to JSON file
+def write_data(data):
+    with open(DATA_FILE, "w") as file:
+        json.dump(data, file, indent=4)
 
-entries = read_entries_from_file()
-print("Entries loaded from file")
-
-
-class Entry(BaseModel):
-    idx: int
+# Pydantic model for validation
+class WorkEntry(BaseModel):
     project: str
     task: str
-    hours: str
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to Working Hours App"}
+    hours: float
 
-@app.get("/entries", response_model=List[Entry])
-def get_entries():
-    return entries
+@app.get("/working_hours_app")
+def get_work_hours():
+    return read_data()
 
-@app.post("/entries")
-def add_entry(entry: Entry):
-    entries.append(entry.model_dump(mode="json"))
-    save_entries_to_file(entries)
-    return
+@app.post("/working_hours_app")
+def add_work_hours(entry: WorkEntry):
+    data = read_data()
+    print(type(data))
+    data.append(entry.model_dump())
+    write_data(data)
+    return {"message": "Entry added successfully"}
 
-@app.delete("/entries/{idx}")
-def delete_entry(idx: int):
-    global entries
-    entries = [e for e in entries if e["idx"]  != idx]
-    save_entries_to_file(entries)
-    return{"message": "Entry deleted"}
+@app.delete("/working_hours_app/{index}")
+def delete_work_entry(index: int):
+    data = read_data()
+    if 0 <= index < len(data):
+        del data[index]
+        write_data(data)
+        return {"message": "Entry deleted successfully"}
+    raise HTTPException(status_code=404, detail="Entry not found")
 
-@app.put("/entries/{idx}")
-def update_entry(idx: int, updated_entry: Entry):
-    for entry in entries:
-        if entry["idx"] == idx:
-            entry["project"] = updated_entry.project
-            entry["task"] = updated_entry.task
-            entry["hours"] = updated_entry.hours
-            return {"message": "Entry updated"}
-    return {"message": "Entry not found"}, 404
+# Run the FastAPI app on a specific port
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
