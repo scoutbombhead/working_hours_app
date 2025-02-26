@@ -66,7 +66,10 @@
             color: white;
             border-radius: 4px;
         }
-
+		#controls button:disabled {
+			background-color: #ccc;
+			cursor: not-allowed;
+		}
         #summary-table {
             width: 50%;
             margin: 20px auto; /* Centers the table horizontally */
@@ -83,7 +86,10 @@
             background-color: #f1f1f1;
             font-weight: bold;
         }
-
+		/* Styling for empty cells */
+			.empty-cell {
+			background-color: #ffcccc; /* light red background */
+    	}
     </style>
 </head>
 <body>
@@ -192,25 +198,7 @@
             }
         }
     }
-    async function writeWorkHours(entries) {
 
-        try {
-            const response = await fetch("http://localhost:8000/save_work_hours", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(entries)
-            });
-
-            if (response.ok) {
-                alert("Work hours saved successfully!");
-            } else {
-                alert("Failed to save work hours.");
-            }
-        } catch (error) {
-            console.error("Error saving work hours:", error);
-            alert("An error occurred while saving.");
-        }
-    }
     // Call the function to populate the delete buttons
     updateDeleteButton();
     // Remove a row and update the delete column
@@ -221,6 +209,7 @@
             rows[rowIndex].remove();
             updateDeleteButton();
             updateSummaryTable();
+            validateTable();
         }
     }
 
@@ -262,6 +251,37 @@
         }
     }
 
+    // Function to validate each row and update cell styles and Save button state
+    function validateTable() {
+        const tbody = document.querySelector("#work-hours-table tbody");
+        const rows = tbody.querySelectorAll("tr");
+        let allFilled = true;
+// For each row, check required cells (cells[1] = project, cells[2] = task, cells[3] = hours)
+        rows.forEach(row => {
+            const cells = row.querySelectorAll("td");
+// Skip the first cell (the delete button cell)
+            for (let i = 1; i < 4; i++) {
+                const cell = cells[i];
+                if (cell.innerText.trim() === "") {
+                    cell.classList.add("empty-cell");
+                    allFilled = false;
+                } else {
+                    cell.classList.remove("empty-cell");
+                }
+            }
+        });
+// Disable Save Changes button if any required cell is empty
+        document.getElementById("save-changes").disabled = !allFilled;
+    }
+
+    // Attach event listeners to table cells to validate on input
+    function attachCellListeners() {
+        const tbody = document.querySelector("#work-hours-table tbody");
+        tbody.querySelectorAll("td[contenteditable='true']").forEach(cell => {
+            cell.addEventListener("input", validateTable);
+        });
+    }
+
     // listen to click event on button add entry
     // Add a new editable row to the table
     document.getElementById('add-entry').addEventListener('click', () => {
@@ -274,6 +294,7 @@
         <td contenteditable="true"></td>
       `;
         tbody.appendChild(newRow);
+        validateTable();
         updateDeleteButton();
         updateSummaryTable();
     });
@@ -316,6 +337,7 @@
 
     // Initialize the delete column and summary table on page load.
     getWorkHoursTable();
+    attachCellListeners();
 </script>
 </body>
 </html>
