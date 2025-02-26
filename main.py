@@ -3,8 +3,22 @@ from pydantic import BaseModel
 import json
 import os
 import uvicorn
+from typing import List
+
+
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+# Allow frontend to access backend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins (replace with your frontend URL for security)
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods
+    allow_headers=["*"],  # Allow all headers
+)
+
 
 DATA_FILE = "entries.json"
 
@@ -33,13 +47,14 @@ class WorkEntry(BaseModel):
 def get_work_hours():
     return read_data()
 
-@app.post("/working_hours_app")
-def add_work_hours(entry: WorkEntry):
-    data = read_data()
-    print(type(data))
-    data.append(entry.model_dump())
-    write_data(data)
-    return {"message": "Entry added successfully"}
+@app.post("/save_work_hours")
+async def save_work_hours(entries: List[WorkEntry]):  # Explicitly define list type
+    try:
+        data = [entry.model_dump() for entry in entries]
+        write_data(data)
+        return {"message": "Work hours saved successfully!"}
+    except Exception as e:
+        return {"error": str(e)}
 
 @app.delete("/working_hours_app/{index}")
 def delete_work_entry(index: int):
