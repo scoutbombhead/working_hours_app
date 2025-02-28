@@ -108,18 +108,6 @@
         </tr>
         </thead>
         <tbody>
-        <tr>
-            <td contenteditable="false"></td>
-            <td contenteditable="true">Project A</td>
-            <td contenteditable="true">Bug Fix</td>
-            <td contenteditable="true">3</td>
-        </tr>
-        <tr>
-            <td contenteditable="false"></td>
-            <td contenteditable="true">Project B</td>
-            <td contenteditable="true">Feature Development</td>
-            <td contenteditable="true">5</td>
-        </tr>
         </tbody>
     </table>
 </div>
@@ -276,10 +264,10 @@
 
     // Attach event listeners to table cells to validate on input
     function attachCellListeners() {
-        const tbody = document.querySelector("#work-hours-table tbody");
-        tbody.querySelectorAll("td[contenteditable='true']").forEach(cell => {
-            cell.addEventListener("input", validateTable);
-        });
+        document.querySelector("#work-hours-table").addEventListener("input", validateTable);
+        document.querySelector("#work-hours-table").addEventListener("keydown", validateTable);
+        document.querySelector("#work-hours-table").addEventListener("blur", validateTable, true);
+
     }
 
     // listen to click event on button add entry
