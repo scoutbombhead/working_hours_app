@@ -43,7 +43,6 @@
             max-width: 600px;
         }
         #work-hours-table th, #work-hours-table td {
-            border: 1px solid #ddd;
             padding: 9.5px;
             text-align: center;
             height: 20px;
@@ -53,6 +52,13 @@
             background-color: #f1f1f1;
             font-weight: bold;
         }
+
+        /* Styling for empty cells */
+        #work-hours-table td.empty-cell {
+            border: 2px solid red; !important;
+            background-color: transparent; /* Keep background normal */ !important;
+        }
+
         /* Controls for buttons below the table */
         #controls {
             margin-top: 20px;
@@ -86,10 +92,7 @@
             background-color: #f1f1f1;
             font-weight: bold;
         }
-		/* Styling for empty cells */
-			.empty-cell {
-			background-color: #ffcccc; /* light red background */
-    	}
+
     </style>
 </head>
 <body>
@@ -252,9 +255,11 @@
                 const cell = cells[i];
                 if (cell.innerText.trim() === "") {
                     cell.classList.add("empty-cell");
+                    console.log("Added empty-cell to:", cell);
                     allFilled = false;
                 } else {
                     cell.classList.remove("empty-cell");
+                    console.log("Removed empty-cell from:", cell);
                 }
             }
         });
