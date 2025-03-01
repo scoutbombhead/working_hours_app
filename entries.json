@@ -1,1 +1,17 @@
-[]
+[
+    {
+        "project": "AMG BR167",
+        "task": "Comstack update",
+        "hours": 2.0
+    },
+    {
+        "project": "Holon",
+        "task": "Create rest bus simulation",
+        "hours": 5.0
+    },
+    {
+        "project": "AMG BR167",
+        "task": "Build release SW",
+        "hours": 3.0
+    }
+]
