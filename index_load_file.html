@@ -59,16 +59,6 @@
             border-radius: 3px;
         }
 
-        /*
-        @keyframes glow-fade {
-            from {
-                box-shadow: 0 0 8px rgba(255, 0, 0, 0.7);
-            }
-            to {
-                box-shadow: 0 0 4px rgba(255, 0, 0, 0.4);
-            }
-        }
-        */
 
         /* Controls for buttons below the table */
         #controls {
@@ -104,6 +94,38 @@
             font-weight: bold;
         }
 
+        /* Tooltip styling */
+        .tooltip-btn {
+            position: relative;
+            cursor: not-allowed; /* Makes it clear the button is disabled */
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            background-color: black;
+            color: white;
+            text-align: center;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+
+            /* Positioning */
+            position: absolute;
+            bottom: 120%; /* Above the button */
+            left: 50%;
+            transform: translateX(-50%);
+
+            /* Smooth fade-in effect */
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        /* Show tooltip when button is disabled */
+        .tooltip-btn:disabled:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
     </style>
 </head>
 <body>
@@ -129,7 +151,10 @@
 <!-- Controls for adding and saving entries -->
 <div id="controls">
     <button id="add-entry">Add New Entry</button>
-    <button id="save-changes">Save Changes</button>
+    <button id="save-changes" class="tooltip-btn">
+        Save Changes
+        <span class="tooltip-text">Fill all fields before saving!</span>
+    </button>
 </div>
 
 <h2>Project Summary</h2>
