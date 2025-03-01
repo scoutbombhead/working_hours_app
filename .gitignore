@@ -1,5 +1,5 @@
 # Ignore .idea files
 .idea/
 *.bak
- __pycache__/
- temp/
+__pycache__/
+temp/
