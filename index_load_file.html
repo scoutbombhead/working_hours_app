@@ -55,9 +55,20 @@
 
         /* Styling for empty cells */
         #work-hours-table td.empty-cell {
-            border: 2px solid red; !important;
-            background-color: transparent; /* Keep background normal */ !important;
+            box-shadow: 0 0 8px rgba(255, 0, 0, 0.4);
+            border-radius: 3px;
         }
+
+        /*
+        @keyframes glow-fade {
+            from {
+                box-shadow: 0 0 8px rgba(255, 0, 0, 0.7);
+            }
+            to {
+                box-shadow: 0 0 4px rgba(255, 0, 0, 0.4);
+            }
+        }
+        */
 
         /* Controls for buttons below the table */
         #controls {
