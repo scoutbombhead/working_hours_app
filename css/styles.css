@@ -1,0 +1,120 @@
+body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background-color: #f9f9f9;
+    text-align: center;
+}
+h1, h2 {
+    margin-bottom: 20px;
+}
+/* Container for the editable table and delete buttons */
+#log-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+#work-hours-table th:first-child,
+#work-hours-table td:first-child {
+    border: none; /* Remove all borders */
+    background-color: #f9f9f9;
+}
+
+#work-hours-table {
+    border-collapse: collapse;
+}
+
+#work-hours-table td {
+    border: 1px solid #ddd;
+    text-align: center;
+    vertical-align: middle;
+}
+/* Table styling */
+#work-hours-table table {
+    width: 80%;
+    max-width: 600px;
+}
+#work-hours-table th, #work-hours-table td {
+    padding: 9.5px;
+    text-align: center;
+    height: 20px;
+    min-height: 20px;
+}
+th {
+    background-color: #f1f1f1;
+    font-weight: bold;
+}
+
+/* Styling for empty cells */
+#work-hours-table td.empty-cell {
+    box-shadow: 0 0 8px rgba(255, 0, 0, 0.4);
+    border-radius: 3px;
+}
+
+
+/* Controls for buttons below the table */
+#controls {
+    margin-top: 20px;
+}
+#controls button {
+    padding: 5px 10px;
+    margin: 2px;
+    cursor: pointer;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 4px;
+}
+#controls button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+#summary-table {
+    width: 50%;
+    margin: 20px auto; /* Centers the table horizontally */
+    border-collapse: collapse;
+}
+
+#summary-table th, #summary-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+#summary-table th {
+    background-color: #f1f1f1;
+    font-weight: bold;
+}
+
+/* Tooltip styling */
+.tooltip-btn {
+    position: relative;
+    cursor: not-allowed; /* Makes it clear the button is disabled */
+}
+
+.tooltip-text {
+    visibility: hidden;
+    background-color: black;
+    color: white;
+    text-align: center;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+
+    /* Positioning */
+    position: absolute;
+    bottom: 120%; /* Above the button */
+    left: 50%;
+    transform: translateX(-50%);
+
+    /* Smooth fade-in effect */
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Show tooltip when button is disabled */
+.tooltip-btn:disabled:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}

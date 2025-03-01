@@ -1,1 +1,17 @@
-[]
+[
+    {
+        "project": "Hello",
+        "task": "Darkness",
+        "hours": 2.0
+    },
+    {
+        "project": "My old",
+        "task": "friend",
+        "hours": 3.0
+    },
+    {
+        "project": "I've",
+        "task": "come",
+        "hours": 2.0
+    }
+]
