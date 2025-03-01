@@ -12,7 +12,7 @@ async function getWorkHoursTable() {
                 <td contenteditable="false"></td>
                 <td contenteditable="true">${entry.project}</td>
                 <td contenteditable="true">${entry.task}</td>
-                <td contenteditable="true">${entry.hours}</td>
+                <td><input type="number" class="hours-input" min="0" value=${entry.hours}></td>
             `;
         tbody.appendChild(newRow);
     });
@@ -50,8 +50,6 @@ function updateDeleteButton() {
     }
 }
 
-// Call the function to populate the delete buttons
-updateDeleteButton();
 // Remove a row and update the delete column
 function removeRow(rowIndex) {
     const tbody = document.querySelector('#work-hours-table tbody');
@@ -75,7 +73,7 @@ function updateSummaryTable() {
         // Extract project name and hours, trimming any extra spaces.
         if( cells[1].innerText !==''){
             const project = cells[1].innerText.trim();
-            const hoursText = cells[3].innerText.trim();
+            const hoursText = cells[3].querySelector(".hours-input").value.trim();
             // Parse hours to a number; if invalid, treat as 0.
             const hours = parseFloat(hoursText) || 0;
 
@@ -113,7 +111,17 @@ function validateTable() {
 // Skip the first cell (the delete button cell)
         for (let i = 1; i < 4; i++) {
             const cell = cells[i];
-            if (cell.innerText.trim() === "") {
+            // If it's the Hours column, check input value instead of innerText
+            if (i === 3) {
+                const input = cell.querySelector(".hours-input");
+                if (!input || input.value.trim() === "") {  // Ensure the spinner has a valid value
+                    cell.classList.add("empty-cell");
+                    allFilled = false;
+                } else {
+                    cell.classList.remove("empty-cell");
+                }
+            }
+            else if (cell.innerText.trim() === "") {
                 cell.classList.add("empty-cell");
                 console.log("Added empty-cell to:", cell);
                 allFilled = false;
@@ -135,6 +143,9 @@ function attachCellListeners() {
 
 }
 
+// Call the function to populate the delete buttons
+updateDeleteButton();
+
 // listen to click event on button add entry
 // Add a new editable row to the table
 document.getElementById('add-entry').addEventListener('click', () => {
@@ -144,7 +155,7 @@ document.getElementById('add-entry').addEventListener('click', () => {
         <td contenteditable="false"></td>
         <td contenteditable="true"></td>
         <td contenteditable="true"></td>
-        <td contenteditable="true"></td>
+        <td><input type="number" class="hours-input" min="0" value=""></td>
       `;
     tbody.appendChild(newRow);
     validateTable();
@@ -163,7 +174,7 @@ document.getElementById('save-changes').addEventListener('click', async () => {
         const entry = {
             project: cells[1].innerText.trim(),
             task: cells[2].innerText.trim(),
-            hours: cells[3].innerText.trim()
+            hours: cells[3].querySelector(".hours-input").value.trim()
         };
         entries.push(entry);
     });
