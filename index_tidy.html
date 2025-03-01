@@ -21,39 +21,39 @@
       align-items: flex-start;
       gap: 10px;
     }
-    /* Delete column styling */
-    #delete-column {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      margin-top: 40px; /* Adjust to align with table rows */
+
+    #work-hours-table th:first-child,
+    #work-hours-table td:first-child {
+      border: none; /* Remove all borders */
+      background-color: #f9f9f9;
     }
-    #delete-column button {
-      padding: 5px;
-      width: 30px;
-      background-color: #f44336;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    /* Table styling */
-    table {
-      width: 80%;
-      max-width: 600px;
+
+    #work-hours-table {
       border-collapse: collapse;
     }
-    th, td {
+
+    #work-hours-table td {
       border: 1px solid #ddd;
-      padding: 10px;
       text-align: center;
+      vertical-align: middle;
+    }
+    /* Table styling */
+    #work-hours-table table {
+      width: 80%;
+      max-width: 600px;
+    }
+    #work-hours-table th, #work-hours-table td {
+      border: 1px solid #ddd;
+      padding: 9.5px;
+      text-align: center;
+      height: 20px;
+      min-height: 20px;
     }
     th {
       background-color: #f1f1f1;
       font-weight: bold;
     }
-    /* Controls below the table */
+    /* Controls for buttons below the table */
     #controls {
       margin-top: 20px;
     }
@@ -87,16 +87,15 @@
   </style>
 </head>
 <body>
-<h1>Editable Work Hours Log</h1>
+<h1>Work Hours Log</h1>
 
 <div id="log-container">
-  <!-- Delete buttons column -->
-  <div id="delete-column"></div>
 
-  <!-- Editable Data Table -->
+  <!-- Data table -->
   <table id="work-hours-table">
     <thead>
     <tr>
+      <th></th>
       <th>Project</th>
       <th>Task</th>
       <th>Hours</th>
@@ -104,11 +103,13 @@
     </thead>
     <tbody>
     <tr>
+      <td contenteditable="false"></td>
       <td contenteditable="true">Project A</td>
       <td contenteditable="true">Bug Fix</td>
       <td contenteditable="true">3</td>
     </tr>
     <tr>
+      <td contenteditable="false"></td>
       <td contenteditable="true">Project B</td>
       <td contenteditable="true">Feature Development</td>
       <td contenteditable="true">5</td>
@@ -140,49 +141,47 @@
 
 <script>
   // Update the delete column to match the number of rows
-  function updateDeleteColumn() {
+    function updateDeleteButton() {
     const tbody = document.querySelector('#work-hours-table tbody');
-    const rows = tbody.querySelectorAll('tr');
-    const deleteColumn = document.getElementById('delete-column');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
 
-    // Clear the delete column
-    deleteColumn.innerHTML = '';
+    // Loop through all rows
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const firstCell = row.querySelector('td'); // Get the first cell of the row
+      
+      if (firstCell) {
+        // Clear the first cell's content (if any)
+        firstCell.innerHTML = '';
+        // Add a delete button to all other rows
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'delete';
+        deleteButton.innerText = '-';
 
-    // Create a delete button for each row
-    rows.forEach((row, index) => {
-      const btn = document.createElement('button');
-      btn.className = 'delete';
-      btn.innerText = '-';
-      btn.onclick = function() { removeRow(index); };
-      deleteColumn.appendChild(btn);
-    });
+        // Attach click handler
+        deleteButton.onclick = (function(index) {
+          return function() {
+            removeRow(index);
+          };
+        })(i);
+
+        firstCell.appendChild(deleteButton);
+      }
+    }
   }
 
+  // Call the function to populate the delete buttons
+    updateDeleteButton();
   // Remove a row and update the delete column
   function removeRow(rowIndex) {
     const tbody = document.querySelector('#work-hours-table tbody');
     const rows = tbody.querySelectorAll('tr');
     if (rowIndex < rows.length) {
       rows[rowIndex].remove();
-      updateDeleteColumn();
+            updateDeleteButton();
       updateSummaryTable();
     }
   }
-  //main
-  // listen to click event on button add entry
-  // Add a new editable row to the table
-  document.getElementById('add-entry').addEventListener('click', () => {
-    const tbody = document.querySelector('#work-hours-table tbody');
-    const newRow = document.createElement('tr');
-    newRow.innerHTML = `
-        <td contenteditable="true">New Project</td>
-        <td contenteditable="true">New Task</td>
-        <td contenteditable="true">0</td>
-      `;
-    tbody.appendChild(newRow);
-    updateDeleteColumn();
-    updateSummaryTable();
-  });
 
   // Gather table data and update the summary table
   function updateSummaryTable() {
@@ -193,8 +192,9 @@
     rows.forEach(row => {
       const cells = row.querySelectorAll('td');
       // Extract project name and hours, trimming any extra spaces.
-      const project = cells[0].innerText.trim();
-      const hoursText = cells[2].innerText.trim();
+      if( cells[1].innerText !==''){
+      const project = cells[1].innerText.trim();
+      const hoursText = cells[3].innerText.trim();
       // Parse hours to a number; if invalid, treat as 0.
       const hours = parseFloat(hoursText) || 0;
 
@@ -202,6 +202,7 @@
         summary[project] += hours;
       } else {
         summary[project] = hours;
+      }
       }
     });
 
@@ -220,11 +221,29 @@
     }
   }
 
+  //main
+  // listen to click event on button add entry
+  // Add a new editable row to the table
+  document.getElementById('add-entry').addEventListener('click', () => {
+    const tbody = document.querySelector('#work-hours-table tbody');
+    const newRow = document.createElement('tr');
+    newRow.innerHTML = `
+        <td contenteditable="false"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+      `;
+    tbody.appendChild(newRow);
+        updateDeleteButton();
+    updateSummaryTable();
+  });
+
   // When "Save Changes" is clicked, log table data and update summary.
   document.getElementById('save-changes').addEventListener('click', () => {
     const tbody = document.querySelector('#work-hours-table tbody');
     const rows = tbody.querySelectorAll('tr');
     const entries = [];
+    //Trim entries of all rows and
     rows.forEach(row => {
       const cells = row.querySelectorAll('td');
       const entry = {
@@ -240,7 +259,7 @@
   });
 
   // Initialize the delete column and summary table on page load.
-  updateDeleteColumn();
+    updateDeleteButton();
   updateSummaryTable();
 </script>
 </body>
