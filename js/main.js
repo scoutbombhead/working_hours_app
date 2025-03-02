@@ -199,6 +199,49 @@ document.getElementById('save-changes').addEventListener('click', async () => {
     // Optionally, send 'entries' to your FastAPI backend via fetch() here.
 });
 
+document.addEventListener("DOMContentLoaded", function () {
+    const monthSelect = document.getElementById("month-select");
+    const workingDays = document.getElementById("working-days");
+    const workingHours = document.getElementById("working-hours");
+    const sickDays = document.getElementById("sick-days");
+    const vacationDays = document.getElementById("vacation-days");
+
+    function getWorkingDays(year, month) {
+        let workingDays = 0;
+        let totalDays = new Date(year, month, 0).getDate();
+
+        for (let day = 1; day <= totalDays; day++) {
+            let date = new Date(year, month - 1, day);
+            let dayOfWeek = date.getDay();
+            if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                workingDays++;
+            }
+        }
+        return workingDays;
+    }
+
+    monthSelect.addEventListener("change", function () {
+        const year = new Date().getFullYear();
+        const selectedMonth = parseInt(monthSelect.value);
+        workingDays.value = getWorkingDays(year, selectedMonth);
+        workingHours.value = parseFloat((parseInt(workingDays.value) * 8.2).toFixed(1));
+    });
+
+    // Set default month and working days
+    monthSelect.value = new Date().getMonth() + 1;
+    monthSelect.dispatchEvent(new Event("change"));
+
+    sickDays.addEventListener("change", function () {
+        workingDays.value = getWorkingDays(new Date().getFullYear(), parseInt(monthSelect.value)) - parseInt(sickDays.value) - parseInt(vacationDays.value);
+        workingHours.value = parseFloat((parseInt(workingDays.value) * 8.2).toFixed(1));
+    });
+
+    vacationDays.addEventListener("change", function () {
+        workingDays.value = getWorkingDays(new Date().getFullYear(), parseInt(monthSelect.value)) - parseInt(sickDays.value) - parseInt(vacationDays.value)
+        workingHours.value = parseFloat((parseInt(workingDays.value) * 8.2).toFixed(1));
+    });
+
+});
 // Initialize the delete column and summary table on page load.
 getWorkHoursTable();
 attachCellListeners();

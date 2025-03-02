@@ -8,6 +8,33 @@
 </head>
 <body>
 <h1>Work Hours Log</h1>
+<!-- Month Dropdown & Working Days Box -->
+<div id="month-container">
+    <label for="month-select">Select Month:</label>
+    <select id="month-select">
+        <option value="1">January</option>
+        <option value="2">February</option>
+        <option value="3">March</option>
+        <option value="4">April</option>
+        <option value="5">May</option>
+        <option value="6">June</option>
+        <option value="7">July</option>
+        <option value="8">August</option>
+        <option value="9">September</option>
+        <option value="10">October</option>
+        <option value="11">November</option>
+        <option value="12">December</option>
+    </select>
+
+    <label for="working-days">Working Days:</label>
+    <input type="number" id="working-days" min="0" readonly>
+    <label for="working-hours">Working Hours:</label>
+    <input type="number" id="working-hours" min="0" readonly>
+    <label for="sick-days">Sick Days:</label>
+    <input type="number" id="sick-days" min="0" value="0">
+    <label for="vacation-days">Vacation Days:</label>
+    <input type="number" id="vacation-days" min="0" value="0">
+</div>
 <div id="log-container">
     <!-- Data table -->
     <table id="work-hours-table">
@@ -246,6 +273,49 @@
         // Optionally, send 'entries' to your FastAPI backend via fetch() here.
     });
 
+    document.addEventListener("DOMContentLoaded", function () {
+        const monthSelect = document.getElementById("month-select");
+        const workingDays = document.getElementById("working-days");
+        const workingHours = document.getElementById("working-hours");
+        const sickDays = document.getElementById("sick-days");
+        const vacationDays = document.getElementById("vacation-days");
+
+        function getWorkingDays(year, month) {
+            let workingDays = 0;
+            let totalDays = new Date(year, month, 0).getDate();
+
+            for (let day = 1; day <= totalDays; day++) {
+                let date = new Date(year, month - 1, day);
+                let dayOfWeek = date.getDay();
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                    workingDays++;
+                }
+            }
+            return workingDays;
+        }
+
+        monthSelect.addEventListener("change", function () {
+            const year = new Date().getFullYear();
+            const selectedMonth = parseInt(monthSelect.value);
+            workingDays.value = getWorkingDays(year, selectedMonth);
+            workingHours.value = parseFloat((parseInt(workingDays.value) * 8.2).toFixed(1));
+        });
+
+        // Set default month and working days
+        monthSelect.value = new Date().getMonth() + 1;
+        monthSelect.dispatchEvent(new Event("change"));
+
+        sickDays.addEventListener("change", function () {
+            workingDays.value = getWorkingDays(new Date().getFullYear(), parseInt(monthSelect.value)) - parseInt(sickDays.value) - parseInt(vacationDays.value);
+            workingHours.value = parseFloat((parseInt(workingDays.value) * 8.2).toFixed(1));
+        });
+
+        vacationDays.addEventListener("change", function () {
+            workingDays.value = getWorkingDays(new Date().getFullYear(), parseInt(monthSelect.value)) - parseInt(sickDays.value) - parseInt(vacationDays.value)
+            workingHours.value = parseFloat((parseInt(workingDays.value) * 8.2).toFixed(1));
+        });
+
+    });
     // Initialize the delete column and summary table on page load.
     getWorkHoursTable();
     attachCellListeners();
