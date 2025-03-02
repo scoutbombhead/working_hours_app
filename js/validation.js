@@ -32,6 +32,7 @@ export function validateTable() {
     });
 // Disable Save Changes button if any required cell is empty
     document.getElementById("save-changes").disabled = !allFilled;
+    updateSummaryTable();
 }
 
 // Update the delete column to match the number of rows
