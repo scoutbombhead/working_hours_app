@@ -52,6 +52,10 @@ th {
     border-radius: 3px;
 }
 
+.hours-input {
+    width: 60px;
+    text-align: center;
+}
 
 /* Controls for buttons below the table */
 #controls {
